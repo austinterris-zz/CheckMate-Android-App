@@ -8,6 +8,7 @@ import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -26,6 +27,9 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class CartActivity extends AppCompatActivity {
+    ItemListAdapter adapter;
+    RecyclerView recyclerView;
+    ArrayList<String> cart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +47,11 @@ public class CartActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        cart = new ArrayList<String>();
+        adapter = new ItemListAdapter(this, cart, this);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setAdapter(adapter);
     }
 
     public void getItemInfo(String hf)
@@ -70,17 +79,14 @@ public class CartActivity extends AppCompatActivity {
 
                     JSONObject json_data = null;
 
-                    ArrayList<String> items = new ArrayList<String>();
                     for (int i = 0; i < jsonItemsList.length(); i++)
                     {
                         json_data = jsonItemsList.getJSONObject(i);
                         String name = json_data.getString("name");
-                        items.add(name);
+                        cart.add(name);
+                        adapter.addItem(name);
                     }
 
-                    //adapter = new ArrayAdapter<String>(this, R.layout.list_item, R.id.txtname, items);
-                    //ListView list = (ListView) findViewById(R.id.itemList);
-                    //list.setAdapter(adapter);
                 }
                 else
                 {
