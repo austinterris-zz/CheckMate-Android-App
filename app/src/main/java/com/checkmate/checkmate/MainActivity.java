@@ -1,6 +1,7 @@
 package com.checkmate.checkmate;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -49,11 +50,12 @@ public class MainActivity extends AppCompatActivity
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setImageResource(R.drawable.ic_add_shopping_cart);
+        final Context context = this;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Coming Soon!", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(context, CartActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -191,8 +193,8 @@ public class MainActivity extends AppCompatActivity
             c.setRequestProperty("Content-length", "0");
             c.setUseCaches(false);
             c.setAllowUserInteraction(false);
-            c.setConnectTimeout(10000);
-            c.setReadTimeout(10000);
+            c.setConnectTimeout(2000);
+            c.setReadTimeout(2000);
             c.connect();
             int status = c.getResponseCode();
 
