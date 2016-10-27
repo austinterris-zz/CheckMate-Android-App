@@ -43,8 +43,7 @@ public class CartActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Checkout", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                checkout();
             }
         });
 
@@ -52,11 +51,23 @@ public class CartActivity extends AppCompatActivity {
         adapter = new ItemListAdapter(this, cart, this);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setAdapter(adapter);
+
+        getItemInfo("111");
+        getItemInfo("222");
+        getItemInfo("333");
+    }
+
+    public void checkout()
+    {
+        //iterate through all items in cart array list
+        //JSONArray jsonItemsList = getJSONArrayFromURL("http://caltec.dyndns.org:3000/items/buy/" + cart.get(i).hf);
+
+        this.onBackPressed();
     }
 
     public void getItemInfo(String hf)
     {
-        Log.d("CheckMate", "Retrieving Items List");
+        Log.d("CheckMate", "Retrieving Item " + hf);
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
@@ -71,18 +82,17 @@ public class CartActivity extends AppCompatActivity {
         {
             try
             {
-                JSONArray jsonItemsList = getJSONArrayFromURL("http://caltec.dyndns.org:3000/items/info/" + hf);
+                JSONArray jsonItemsList = getJSONArrayFromURL("http://caltec.dyndns.org:3000/items/info/111");
 
-                if (jsonItemsList != null) {
-                    Log.d("CheckMate", "Retrieve Complete");
-
-
+                if (jsonItemsList != null)
+                {
                     JSONObject json_data = null;
 
                     for (int i = 0; i < jsonItemsList.length(); i++)
                     {
                         json_data = jsonItemsList.getJSONObject(i);
                         String name = json_data.getString("name");
+                        Log.d("CheckMate", "Retrieved" + name);
                         cart.add(name);
                         adapter.addItem(name);
                     }
