@@ -17,10 +17,8 @@ import android.widget.Toast;
 
 public class ItemView extends LinearLayout {
     TextView itemDescTextView, itemPriceTextView;
-    Button button;
-    String itemName, itemPrice;
 
-    EditText numItemsEditText;
+    String itemName, itemPrice;
 
     public ItemView(Context context) {
         super(context);
@@ -41,7 +39,7 @@ public class ItemView extends LinearLayout {
 
     public void setItemPrice(String itemPrice){
         this.itemPrice = itemPrice;
-        this.itemPriceTextView.setText(itemName);
+        this.itemPriceTextView.setText(itemPrice);
     }
 
 }

@@ -1,7 +1,6 @@
 package com.checkmate.checkmate;
 
 import android.content.Context;
-import android.support.v7.app.ActionBar;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -20,18 +19,17 @@ import java.util.List;
 public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private Context context;
     private CartActivity listActivity;
-    private List<String> itemStrList;
+    private List<Item> itemList;
     private int selected_position;
     private ActionMode.Callback actionCallBack;
     private ActionMode actionMode;
-    private Toolbar toolbar;
 
-    public ItemListAdapter(final Context context, List<String> itemStrList, final CartActivity listActivity) {
+
+    public ItemListAdapter(final Context context, List<Item> itemList, final CartActivity listActivity) {
         this.context = context;
-        this.itemStrList = itemStrList;
+        this.itemList = itemList;
         this.listActivity = listActivity;
-        this.toolbar = (Toolbar) listActivity.findViewById(R.id.toolbar);
-        //listActivity.setSupportActionBar((ActionBar)listActivity.findViewById(R.id.ac));
+
         this.actionCallBack = new ActionMode.Callback(){
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -66,15 +64,15 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
     public void removeItem(int pos){
 
-        if (itemStrList.size() > 0){
-            itemStrList.remove(pos);
+        if (itemList.size() > 0){
+            itemList.remove(pos);
             this.notifyItemRemoved(pos);
         }
     }
 
-    public void addItem(String itemName){
-        if (itemStrList != null){
-            itemStrList.add(itemName);
+    public void addItem(Item item){
+        if (itemList != null){
+            itemList.add(item);
             this.notifyDataSetChanged();
         }
     }
@@ -87,7 +85,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
     @Override
     public void onBindViewHolder(final ItemViewHolder holder, int position) {
-        final String itemName = this.itemStrList.get(position);
+        final Item item = this.itemList.get(position);
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -99,14 +97,14 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                 return true;
             }
         });
-        holder.bind(itemName);
+        holder.bind(item);
     }
 
     @Override
     public int getItemCount() {
-        if (itemStrList == null)
+        if (itemList == null)
             return 0;
         else
-            return itemStrList.size();
+            return itemList.size();
     }
 }
