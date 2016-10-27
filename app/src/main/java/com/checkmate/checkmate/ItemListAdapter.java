@@ -1,14 +1,15 @@
 package com.checkmate.checkmate;
 
 import android.content.Context;
+import android.support.v7.app.ActionBar;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TabHost;
 
 import java.util.List;
 
@@ -23,12 +24,14 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private int selected_position;
     private ActionMode.Callback actionCallBack;
     private ActionMode actionMode;
+    private Toolbar toolbar;
 
-    public ItemListAdapter(Context context, List<String> itemStrList, CartActivity listActivity) {
+    public ItemListAdapter(final Context context, List<String> itemStrList, final CartActivity listActivity) {
         this.context = context;
         this.itemStrList = itemStrList;
         this.listActivity = listActivity;
-
+        this.toolbar = (Toolbar) listActivity.findViewById(R.id.toolbar);
+        //listActivity.setSupportActionBar((ActionBar)listActivity.findViewById(R.id.ac));
         this.actionCallBack = new ActionMode.Callback(){
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
