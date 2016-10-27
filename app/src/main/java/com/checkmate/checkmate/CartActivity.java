@@ -99,7 +99,6 @@ public class CartActivity extends AppCompatActivity {
                         //adapter.addItem(name);
                     }
                     adapter.notifyDataSetChanged();
-
                 }
                 else
                 {

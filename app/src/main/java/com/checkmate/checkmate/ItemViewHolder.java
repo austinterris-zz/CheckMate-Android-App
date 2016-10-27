@@ -13,11 +13,8 @@ public class ItemViewHolder extends RecyclerView.ViewHolder {
         this.itemView = itemView;
     }
 
-    public void bind(String itemName, int pos){
+    public void bind(String itemName){
         this.itemName = itemName;
         itemView.setItemName(itemName);
-        if (pos % 2 == 0){
-            itemView.setBackgroundColor(Color.LTGRAY);
-        }
     }
 }

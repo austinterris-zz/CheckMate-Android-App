@@ -16,9 +16,10 @@ import android.widget.Toast;
  */
 
 public class ItemView extends LinearLayout {
-    TextView itemTextView;
+    TextView itemDescTextView, itemPriceTextView;
     Button button;
-    String itemName;
+    String itemName, itemPrice;
+
     EditText numItemsEditText;
 
     public ItemView(Context context) {
@@ -27,39 +28,20 @@ public class ItemView extends LinearLayout {
         LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         this.setLayoutParams(params);
         inflater.inflate(R.layout.item_view, this, true);
-        this.itemTextView = (TextView) findViewById(R.id.item_name_tv);
-        this.button = (Button) findViewById(R.id.button_plus);
-        this.numItemsEditText = (EditText) findViewById(R.id.num_items_et);
+        this.itemDescTextView = (TextView) findViewById(R.id.item_name_tv);
+        this.itemPriceTextView = (TextView) findViewById(R.id.price_text_view);
         this.requestLayout();
 
-        button.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                incrementItemCount(v);
-            }
-        });
-    }
-    public void incrementItemCount(View view){
-        if (this.numItemsEditText == null){
-            Log.d("EditText", "null");
-            this.numItemsEditText = (EditText) findViewById(R.id.num_items_et);
-            if (this.numItemsEditText != null){
-                Log.d("EditText", "not null after finding");
-            }
-
-        }
-        else {
-            Log.d("EditText", "not null");
-        }
-        String strNum = this.numItemsEditText.getText().toString();
-        int num = Integer.parseInt(strNum);
-        String newNum = String.valueOf(num + 1);
-        this.numItemsEditText.setText(newNum);
     }
 
     public void setItemName(String itemName){
         this.itemName = itemName;
-        this.itemTextView.setText(itemName);
+        this.itemDescTextView.setText(itemName);
+    }
+
+    public void setItemPrice(String itemPrice){
+        this.itemPrice = itemPrice;
+        this.itemPriceTextView.setText(itemName);
     }
 
 }

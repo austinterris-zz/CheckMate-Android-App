@@ -28,8 +28,8 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         this.context = context;
         this.itemStrList = itemStrList;
         this.listActivity = listActivity;
-        this.actionCallBack = new ActionMode.Callback(){
 
+        this.actionCallBack = new ActionMode.Callback(){
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 actionMode =  mode;
@@ -56,17 +56,16 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
             }
             @Override
             public void onDestroyActionMode(ActionMode mode) {
-
+                actionMode = null;
             }
         };
     }
 
     public void removeItem(int pos){
-        if (itemStrList != null){
-            if (itemStrList.size() > 0){
-                itemStrList.remove(pos);
-                this.notifyItemRemoved(pos);
-            }
+
+        if (itemStrList.size() > 0){
+            itemStrList.remove(pos);
+            this.notifyItemRemoved(pos);
         }
     }
 
@@ -97,7 +96,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                 return true;
             }
         });
-        holder.bind(itemName, position);
+        holder.bind(itemName);
     }
 
     @Override
