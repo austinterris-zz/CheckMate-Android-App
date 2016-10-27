@@ -8,6 +8,7 @@ import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -50,6 +51,7 @@ public class CartActivity extends AppCompatActivity {
         cart = new ArrayList<String>();
         adapter = new ItemListAdapter(this, cart, this);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
 
         getItemInfo("111");
@@ -82,7 +84,7 @@ public class CartActivity extends AppCompatActivity {
         {
             try
             {
-                JSONArray jsonItemsList = getJSONArrayFromURL("http://caltec.dyndns.org:3000/items/info/111");
+                JSONArray jsonItemsList = getJSONArrayFromURL("http://caltec.dyndns.org:3000/items/info/" + hf);
 
                 if (jsonItemsList != null)
                 {
@@ -92,10 +94,11 @@ public class CartActivity extends AppCompatActivity {
                     {
                         json_data = jsonItemsList.getJSONObject(i);
                         String name = json_data.getString("name");
-                        Log.d("CheckMate", "Retrieved" + name);
+                        Log.d("CheckMate", "Retrieved " + name);
                         cart.add(name);
-                        adapter.addItem(name);
+                        //adapter.addItem(name);
                     }
+                    adapter.notifyDataSetChanged();
 
                 }
                 else
@@ -144,7 +147,7 @@ public class CartActivity extends AppCompatActivity {
                     while ((line = br.readLine()) != null)
                         sb.append(line+"\n");
                     br.close();
-                    return new JSONArray(sb.toString());
+                    return new JSONArray("[" + sb.toString() + "]");
             }
         }
         catch (IOException e)
