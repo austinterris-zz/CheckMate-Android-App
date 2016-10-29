@@ -30,7 +30,7 @@ import java.util.ArrayList;
 public class CartActivity extends AppCompatActivity {
     ItemListAdapter adapter;
     RecyclerView recyclerView;
-    ArrayList<String> cart;
+    ArrayList<Item> cart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +48,7 @@ public class CartActivity extends AppCompatActivity {
             }
         });
 
-        cart = new ArrayList<String>();
+        cart = new ArrayList<Item>();
         adapter = new ItemListAdapter(this, cart, this);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -94,12 +94,14 @@ public class CartActivity extends AppCompatActivity {
                     {
                         json_data = jsonItemsList.getJSONObject(i);
                         String name = json_data.getString("name");
+                        //int hfid = json_data.getInt("")
                         Log.d("CheckMate", "Retrieved " + name);
-                        cart.add(name);
+                        String price = json_data.getString("price");
+                        Item newItem = new Item(0, name, "$" + price, 1);
+                        cart.add(newItem);
                         //adapter.addItem(name);
                     }
                     adapter.notifyDataSetChanged();
-
                 }
                 else
                 {

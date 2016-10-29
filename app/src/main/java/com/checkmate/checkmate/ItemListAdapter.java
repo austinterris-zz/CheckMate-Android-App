@@ -3,12 +3,12 @@ package com.checkmate.checkmate;
 import android.content.Context;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TabHost;
 
 import java.util.List;
 
@@ -19,17 +19,18 @@ import java.util.List;
 public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private Context context;
     private CartActivity listActivity;
-    private List<String> itemStrList;
+    private List<Item> itemList;
     private int selected_position;
     private ActionMode.Callback actionCallBack;
     private ActionMode actionMode;
 
-    public ItemListAdapter(Context context, List<String> itemStrList, CartActivity listActivity) {
-        this.context = context;
-        this.itemStrList = itemStrList;
-        this.listActivity = listActivity;
-        this.actionCallBack = new ActionMode.Callback(){
 
+    public ItemListAdapter(final Context context, List<Item> itemList, final CartActivity listActivity) {
+        this.context = context;
+        this.itemList = itemList;
+        this.listActivity = listActivity;
+
+        this.actionCallBack = new ActionMode.Callback(){
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 actionMode =  mode;
@@ -56,23 +57,22 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
             }
             @Override
             public void onDestroyActionMode(ActionMode mode) {
-
+                actionMode = null;
             }
         };
     }
 
     public void removeItem(int pos){
-        if (itemStrList != null){
-            if (itemStrList.size() > 0){
-                itemStrList.remove(pos);
-                this.notifyItemRemoved(pos);
-            }
+
+        if (itemList.size() > 0){
+            itemList.remove(pos);
+            this.notifyItemRemoved(pos);
         }
     }
 
-    public void addItem(String itemName){
-        if (itemStrList != null){
-            itemStrList.add(itemName);
+    public void addItem(Item item){
+        if (itemList != null){
+            itemList.add(item);
             this.notifyDataSetChanged();
         }
     }
@@ -85,7 +85,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
     @Override
     public void onBindViewHolder(final ItemViewHolder holder, int position) {
-        final String itemName = this.itemStrList.get(position);
+        final Item item = this.itemList.get(position);
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -97,14 +97,14 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                 return true;
             }
         });
-        holder.bind(itemName, position);
+        holder.bind(item);
     }
 
     @Override
     public int getItemCount() {
-        if (itemStrList == null)
+        if (itemList == null)
             return 0;
         else
-            return itemStrList.size();
+            return itemList.size();
     }
 }
