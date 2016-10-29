@@ -99,7 +99,6 @@ public class CartActivity extends AppCompatActivity {
                         String price = json_data.getString("price");
                         Item newItem = new Item(0, name, "$" + price, 1);
                         cart.add(newItem);
-                        //adapter.addItem(name);
                     }
                     adapter.notifyDataSetChanged();
                 }
