@@ -1,8 +1,13 @@
 package com.checkmate.checkmate;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.nfc.NfcAdapter;
+import android.nfc.tech.NfcF;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
@@ -31,6 +36,10 @@ public class CartActivity extends AppCompatActivity {
     ItemListAdapter adapter;
     RecyclerView recyclerView;
     ArrayList<Item> cart;
+    private NfcAdapter mNfcAdapter;
+    private PendingIntent pendingIntent;
+    private String[][] mTechLists;
+    private IntentFilter[] mFilters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,15 +57,53 @@ public class CartActivity extends AppCompatActivity {
             }
         });
 
+        //Initialize Cart List and Recycler View
         cart = new ArrayList<Item>();
         adapter = new ItemListAdapter(this, cart, this);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
 
-        getItemInfo("111");
-        getItemInfo("222");
-        getItemInfo("333");
+        //Set up NFC
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        pendingIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
+
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+
+            Log.d("CheckMate", "NFC Working");
+            //byte[] tagId = getIntent().getByteArrayExtra(NfcAdapter.EXTRA_ID);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mNfcAdapter.disableForegroundDispatch(this);
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        byte[] tagId = intent.getByteArrayExtra(NfcAdapter.EXTRA_ID);
+        String hfid = new String();
+        for (int i = 0; i < tagId.length; i++)
+        {
+            String x = Integer.toHexString(((int) tagId[i] & 0xff));
+            if (x.length() == 1) {
+                x = '0' + x;
+            }
+            hfid += x;
+        }
+        Log.d("CheckMate", "Scanned Tag ID " + hfid);
+
+        getItemInfo(hfid);
     }
 
     public void checkout()
