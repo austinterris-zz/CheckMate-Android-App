@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,8 +39,6 @@ public class CartActivity extends AppCompatActivity {
     ArrayList<Item> cart;
     private NfcAdapter mNfcAdapter;
     private PendingIntent pendingIntent;
-    private String[][] mTechLists;
-    private IntentFilter[] mFilters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,12 +74,6 @@ public class CartActivity extends AppCompatActivity {
     {
         super.onResume();
         mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
-
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-
-            Log.d("CheckMate", "NFC Working");
-            //byte[] tagId = getIntent().getByteArrayExtra(NfcAdapter.EXTRA_ID);
-        }
     }
 
     @Override
@@ -108,8 +101,26 @@ public class CartActivity extends AppCompatActivity {
 
     public void checkout()
     {
-        //iterate through all items in cart array list
-        //JSONArray jsonItemsList = getJSONArrayFromURL("http://caltec.dyndns.org:3000/items/buy/" + cart.get(i).hf);
+        JSONArray jsonItemTemp;
+
+        for (Item temp : cart)
+        {
+            try
+            {
+                Log.d("CheckMate", "Purchasing " + temp.getM_itemName() + " with ID " + temp.getM_HFID());
+                jsonItemTemp = getJSONArrayFromURL("http://caltec.dyndns.org:3000/items/buy/" + temp.getM_HFID());
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        Toast.makeText(this, "Checkout Complete!", Toast.LENGTH_LONG).show();
 
         this.onBackPressed();
     }
@@ -144,7 +155,8 @@ public class CartActivity extends AppCompatActivity {
                         //int hfid = json_data.getInt("")
                         Log.d("CheckMate", "Retrieved " + name);
                         String price = json_data.getString("price");
-                        Item newItem = new Item(0, name, "$" + price, 1);
+                        String hfid = json_data.getString("hf");
+                        Item newItem = new Item(hfid, name, "$" + price, "0");
                         cart.add(newItem);
                     }
                     adapter.notifyDataSetChanged();
@@ -180,8 +192,8 @@ public class CartActivity extends AppCompatActivity {
             c.setRequestProperty("Content-length", "0");
             c.setUseCaches(false);
             c.setAllowUserInteraction(false);
-            c.setConnectTimeout(2000);
-            c.setReadTimeout(2000);
+            c.setConnectTimeout(1000);
+            c.setReadTimeout(1000);
             c.connect();
             int status = c.getResponseCode();
 
