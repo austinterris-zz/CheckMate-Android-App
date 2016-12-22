@@ -77,6 +77,10 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         }
     }
 
+    public List<Item> getItems(){
+        return itemList;
+    }
+
     @Override
     public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final ItemView itemView = new ItemView(this.context);

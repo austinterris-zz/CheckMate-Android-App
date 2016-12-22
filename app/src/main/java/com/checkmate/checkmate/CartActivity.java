@@ -3,23 +3,18 @@ package com.checkmate.checkmate;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.nfc.NfcAdapter;
-import android.nfc.tech.NfcF;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -32,13 +27,27 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import retrofit2.Retrofit;
+import rx.Observable;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.functions.Func2;
+import rx.schedulers.Schedulers;
 
 public class CartActivity extends AppCompatActivity {
-    ItemListAdapter adapter;
-    RecyclerView recyclerView;
-    ArrayList<Item> cart;
+    private ItemListAdapter adapter;
+    private RecyclerView recyclerView;
+    private ItemObserver itemObserver;
+
     private NfcAdapter mNfcAdapter;
     private PendingIntent pendingIntent;
+
+
+    private Retrofit retrofit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +58,7 @@ public class CartActivity extends AppCompatActivity {
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setImageResource(R.drawable.ic_payment);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,17 +66,23 @@ public class CartActivity extends AppCompatActivity {
             }
         });
 
-        //Initialize Cart List and Recycler View
-        cart = new ArrayList<Item>();
-        adapter = new ItemListAdapter(this, cart, this);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(adapter);
 
         //Set up NFC
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         pendingIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        itemObserver = (ItemObserver) getLastCustomNonConfigurationInstance();
+
+        if (itemObserver == null){
+            itemObserver = new ItemObserver();
+        }
+
+        adapter = new ItemListAdapter(this, itemObserver.getItems(), this);
+        itemObserver.bind(this);
+        recyclerView.setAdapter(adapter);
+
     }
 
     @Override
@@ -99,25 +115,23 @@ public class CartActivity extends AppCompatActivity {
         getItemInfo(hfid);
     }
 
+    @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        itemObserver.unbind();
+        return itemObserver;
+    }
+
     public void checkout()
     {
-        JSONArray jsonItemTemp;
-
-        for (Item temp : cart)
+        Log.d("Checkout", "items in cart: " + itemObserver.getItems().toString());
+        for (Item temp : itemObserver.getItems())
         {
-            try
-            {
-                Log.d("CheckMate", "Purchasing " + temp.getM_itemName() + " with ID " + temp.getM_HFID());
-                jsonItemTemp = getJSONArrayFromURL("http://caltec.dyndns.org:3000/items/buy/" + temp.getM_HFID());
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-            catch (JSONException e)
-            {
-                e.printStackTrace();
-            }
+            Log.d("CheckMate", "Purchasing " + temp.getName() + " with ID " + temp.getHf());
+            RetrofitHelper.get()
+                    .buyItem(temp.getHf())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(itemObserver);
         }
 
         Toast.makeText(this, "Checkout Complete!", Toast.LENGTH_LONG).show();
@@ -131,102 +145,42 @@ public class CartActivity extends AppCompatActivity {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-        //http://stackoverflow.com/questions/13136539/caused-by-android-os-networkonmainthreadexception
-        if (android.os.Build.VERSION.SDK_INT > 9)
-        {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-
-        if (networkInfo != null && networkInfo.isConnected())
-        {
-            try
-            {
-                JSONArray jsonItemsList = getJSONArrayFromURL("http://caltec.dyndns.org:3000/items/info/" + hf);
-
-                if (jsonItemsList != null)
-                {
-                    JSONObject json_data = null;
-
-                    for (int i = 0; i < jsonItemsList.length(); i++)
-                    {
-                        json_data = jsonItemsList.getJSONObject(i);
-                        String name = json_data.getString("name");
-                        //int hfid = json_data.getInt("")
-                        Log.d("CheckMate", "Retrieved " + name);
-                        String price = json_data.getString("price");
-                        String hfid = json_data.getString("hf");
-                        Item newItem = new Item(hfid, name, "$" + price, "0");
-                        cart.add(newItem);
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-                else
-                {
-                    Log.d("CheckMate", "Failed to Retrieve Items");
-                }
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-            catch (JSONException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        else
-        {
-            // display error
+        if (networkInfo != null && networkInfo.isConnected()) {
+            RetrofitHelper.get()
+                    .getItem(hf)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(itemObserver);
         }
     }
 
-    public static JSONArray getJSONArrayFromURL(String urlString) throws IOException, JSONException
-    {
-        HttpURLConnection c = null;
-        try
-        {
-            URL u = new URL(urlString);
-            c = (HttpURLConnection) u.openConnection();
-            c.setRequestMethod("GET");
-            c.setRequestProperty("Content-length", "0");
-            c.setUseCaches(false);
-            c.setAllowUserInteraction(false);
-            c.setConnectTimeout(1000);
-            c.setReadTimeout(1000);
-            c.connect();
-            int status = c.getResponseCode();
+    private static class ItemObserver implements Observer<Item> {
+        private CartActivity cartActivity;
+        private ArrayList<Item> items = new ArrayList<Item>();
 
-            switch (status)
-            {
-                case 200:
-                case 201:
-                    BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-                    while ((line = br.readLine()) != null)
-                        sb.append(line+"\n");
-                    br.close();
-                    return new JSONArray("[" + sb.toString() + "]");
-            }
+        public ArrayList<Item> getItems(){return items;}
+
+        private void bind(CartActivity cartActivity){
+            this.cartActivity = cartActivity;}
+
+        private void unbind(){
+            cartActivity = null;}
+
+        @Override
+        public void onCompleted() {
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
+
+        @Override
+        public void onError(Throwable e) {
+            Log.e("ERROR", "A terrible error has occurred", e);
         }
-        finally
-        {
-            if (c != null)
-            {
-                try
-                {
-                    c.disconnect();
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-            }
+
+        @Override
+        public void onNext(Item item) {
+            Log.d("onNext", "item hf: " + item.getHf() + "\nitem name: " + item.getName());
+            int index = items.size();
+            items.add(item);
+            cartActivity.adapter.notifyItemInserted(index);
         }
-        return null;
     }
 }

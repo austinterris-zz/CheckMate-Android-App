@@ -5,48 +5,78 @@ package com.checkmate.checkmate;
  * Created by Brady on 10/27/2016.
  */
 
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.Expose;
+
 public class Item {
-    private String m_itemName;
-    private String  m_HFID;
-    private String m_UHFID;
-    private String m_price;
 
-    public Item(String m_HFID, String m_itemName, String m_price, String m_UHFID) {
-        this.m_HFID = m_HFID;
-        this.m_itemName = m_itemName;
-        this.m_price = m_price;
-        this.m_UHFID = m_UHFID;
+    @SerializedName("_id")
+    @Expose
+    private String id;
+    @SerializedName("hf")
+    @Expose
+    private String hf;
+    @SerializedName("uhf")
+    @Expose
+    private String uhf;
+    @SerializedName("name")
+    @Expose
+    private String name;
+    @SerializedName("price")
+    @Expose
+    private String price;
+    @SerializedName("purchased")
+    @Expose
+    private String purchased;
+
+    public String getId() {
+        return id;
     }
 
-    public String getM_HFID() {
-        return m_HFID;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public void setM_HFID(String m_HFID) {
-        this.m_HFID = m_HFID;
+    public String getHf() {
+        return hf;
+    }
+/*
+    public void setHf(String hf) {
+        this.hf = hf;
     }
 
-    public String getM_itemName() {
-        return m_itemName;
+    public String getUhf() {
+        return uhf;
     }
 
-    public void setM_itemName(String m_itemName) {
-        this.m_itemName = m_itemName;
+    public void setUhf(String uhf) {
+        this.uhf = uhf;
+    }*/
+
+    public String getName() {
+        return name;
     }
 
-    public String getM_price() {
-        return m_price;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setM_price(String m_price) {
-        this.m_price = m_price;
+    public String getPrice() {
+        return price;
+    }
+/*
+    public void setPrice(String price) {
+        this.price = price;
     }
 
-    public String getM_UHFID() {
-        return m_UHFID;
+    public String getPurchased() {
+        return purchased;
     }
 
-    public void setM_UHFID(String m_UHFID) {
-        this.m_UHFID = m_UHFID;
-    }
+    public void setPurchased(String purchased) {
+        this.purchased = purchased;
+    }*/
+
 }
+
+

@@ -1,9 +1,6 @@
 package com.checkmate.checkmate;
 
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
-
-import java.math.BigDecimal;
 
 public class ItemViewHolder extends RecyclerView.ViewHolder {
 
@@ -19,9 +16,9 @@ public class ItemViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(Item item){
-        this.m_itemName = item.getM_itemName();
+        this.m_itemName = item.getName();
 
         itemView.setItemName(this.m_itemName);
-        itemView.setItemPrice(item.getM_price());
+        itemView.setItemPrice(item.getPrice());
     }
 }
